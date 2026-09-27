@@ -433,8 +433,8 @@ const ProductPage = () => {
         </form>
 
         {/* Category Pills */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-xs font-medium uppercase tracking-wider text-gray-400 mr-1">
+        <div className="flex items-center gap-2 pt-1 overflow-x-auto pb-1.5 sm:flex-wrap">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 mr-1 shrink-0">
             Category:
           </span>
           {CATEGORIES.map((cat) => {
@@ -443,7 +443,7 @@ const ProductPage = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`category-pill rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
+                className={`category-pill shrink-0 rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
                   isSelected
                     ? "bg-lime-600 text-white shadow-xs"
                     : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100 hover:text-gray-900"

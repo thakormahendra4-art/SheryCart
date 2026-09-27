@@ -107,7 +107,7 @@ const HomePage = () => {
                   Welcome back, <strong className="text-gray-900">{user.name}</strong>
                 </span>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-3xs font-bold uppercase tracking-wider ${
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                     isSeller
                       ? "bg-lime-100 text-lime-800"
                       : "bg-blue-100 text-blue-800"

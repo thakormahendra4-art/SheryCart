@@ -14,6 +14,7 @@ const Navbar = () => {
   // States
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -77,11 +78,11 @@ const Navbar = () => {
         ref={navRef}
         className="w-full border-b border-gray-200 bg-white sticky top-0 z-30 shadow-xs"
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-3 sm:py-3.5">
           {/* Logo */}
           <NavLink
             to="/main"
-            className="text-2xl font-bold text-gray-900 tracking-tight transition hover:scale-105"
+            className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight transition hover:scale-105"
           >
             Shery<span className="text-lime-500">Cart</span>
           </NavLink>
@@ -102,14 +103,17 @@ const Navbar = () => {
           </div>
 
           {/* Profile & User Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {user && (
               <div className="relative" ref={profileDropdownRef}>
                 {/* Profile Trigger Button */}
                 <button
                   type="button"
-                  onClick={() => setIsDropdownOpen((prev) => !prev)}
-                  className="flex items-center gap-2.5 rounded-full border border-gray-200 bg-white p-1.5 pr-3 shadow-2xs hover:bg-gray-50 hover:border-gray-300 transition active:scale-98"
+                  onClick={() => {
+                    setIsDropdownOpen((prev) => !prev);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-2 sm:gap-2.5 rounded-full border border-gray-200 bg-white p-1 sm:p-1.5 sm:pr-3 shadow-2xs hover:bg-gray-50 hover:border-gray-300 transition active:scale-98"
                 >
                   {/* Avatar circle */}
                   <div
@@ -153,7 +157,7 @@ const Navbar = () => {
 
                 {/* Profile Dropdown Menu */}
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-gray-200 bg-white py-2 shadow-2xl z-50 animate-fade-in">
+                  <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-gray-200 bg-white py-2 shadow-2xl z-50 animate-fade-in">
                     {/* Header in dropdown */}
                     <div className="border-b border-gray-100 px-4 py-3">
                       <div className="flex items-center gap-3">
@@ -263,8 +267,86 @@ const Navbar = () => {
                 )}
               </div>
             )}
+
+            {/* Mobile Menu Toggle Button (md:hidden) */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen((prev) => !prev);
+                setIsDropdownOpen(false);
+              }}
+              aria-label="Toggle navigation menu"
+              className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-100 transition active:scale-95 shadow-2xs"
+            >
+              {isMobileMenuOpen ? (
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-100 bg-white px-4 pt-2.5 pb-4 shadow-lg animate-fade-in space-y-1">
+            <NavLink
+              to="/main"
+              end
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-lime-50 text-lime-700 font-semibold"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`
+              }
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span>Home</span>
+            </NavLink>
+
+            <NavLink
+              to="/main/product"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-lime-50 text-lime-700 font-semibold"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`
+              }
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              <span>Products</span>
+            </NavLink>
+
+            <NavLink
+              to="/main/about"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+                  isActive
+                    ? "bg-lime-50 text-lime-700 font-semibold"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`
+              }
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>About</span>
+            </NavLink>
+          </div>
+        )}
       </nav>
 
       {/* Account Profile Modal */}
