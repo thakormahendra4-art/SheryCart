@@ -509,28 +509,84 @@ Base URL: `http://localhost:3000/api`
 
 ---
 
-## Step 12: Deployment Guide
+## Step 12: Deployment Guide (Separate Frontend & Backend)
 
-### Deploying the Backend (e.g., Render / Railway)
-1. Push your repository to GitHub.
-2. Create a new **Web Service** pointing to your repository.
-3. Set **Root Directory** to `backend`.
-4. Build Command: `npm install`.
-5. Start Command: `npm start`.
-6. Add Environment Variables:
-   - `PORT`: `3000`
-   - `MONGO_URI`: Your MongoDB Atlas URI
-   - `ACCESS_TOKEN_SECRET`: Long random secret string
-   - `REFRESH_TOKEN_SECRET`: Long random secret string
+### Part 1: Cloud Database Setup (MongoDB Atlas)
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create or log into your account.
+2. Create a free shared cluster (**M0 Free Tier**).
+3. **Database Access**: Under **Security > Database Access**, add a new database user with read/write privileges (note down the username and password).
+4. **Network Access**: Under **Security > Network Access**, click **Add IP Address** and choose **Allow Access From Anywhere** (`0.0.0.0/0`) so Render can connect to your database.
+5. **Get Connection String**: Go to **Database > Connect > Drivers > Node.js**, copy the connection string:
+   ```
+   mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/sherycart?retryWrites=true&w=majority
+   ```
+   *(Replace `<username>`, `<password>`, and optionally replace the database name before `?` with `sherycart`)*.
 
-### Deploying the Frontend (e.g., Vercel / Netlify)
-1. Create a new project pointing to your GitHub repository.
-2. Set **Root Directory** to `frontend`.
-3. Framework Preset: `Vite`.
-4. Build Command: `npm run build`.
-5. Output Directory: `dist`.
-6. Add Environment Variable:
-   - `VITE_API_BASE_URL`: `https://your-backend-api.onrender.com`
+---
+
+### Part 2: Deploy Backend to Render ([render.com](https://render.com))
+1. Push your latest code to GitHub:
+   ```bash
+   git add .
+   git commit -m "feat: configure backend for cross-origin deployment"
+   git push origin main
+   ```
+2. Log into [Render Dashboard](https://dashboard.render.com/) and click **New + > Web Service**.
+3. Select **Build and deploy from a Git repository** and connect your `SheryCart` repository.
+4. Configure the service settings:
+   - **Name**: `sherycart-backend` (or your preferred name)
+   - **Region**: Choose the closest region (e.g., Singapore, Frankfurt, Oregon)
+   - **Branch**: `main`
+   - **Root Directory**: `backend` *(CRITICAL: ensure this is set to `backend`)*
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Instance Type**: `Free`
+5. Scroll down to **Environment Variables** and add:
+   | Key | Value | Notes |
+   | :--- | :--- | :--- |
+   | `NODE_ENV` | `production` | Enables secure cookies & production optimizations |
+   | `PORT` | `3000` | Port for Express listener |
+   | `MONGO_URI` | `mongodb+srv://...` | Your MongoDB Atlas connection URI |
+   | `ACCESS_TOKEN_SECRET` | *(64-char random string)* | E.g. generate via `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+   | `REFRESH_TOKEN_SECRET`| *(64-char random string)* | Distinct secret for refresh tokens |
+   | `CLIENT_URL` | `https://your-frontend.vercel.app` | *Leave blank or set to `http://localhost:5173` initially; update after deploying frontend* |
+   | `IMAGEKIT_PRIVATE_KEY` | *(optional)* | Only if using ImageKit uploads |
+6. Click **Create Web Service**. Wait for the build and deployment to complete.
+7. Once deployed, copy your backend URL (e.g., `https://sherycart-backend.onrender.com`).
+8. Test in browser: visiting `https://sherycart-backend.onrender.com/` should respond with `"Server is running"`.
+
+---
+
+### Part 3: Deploy Frontend to Vercel ([vercel.com](https://vercel.com))
+1. Log into [Vercel Dashboard](https://vercel.com/dashboard) and click **Add New... > Project**.
+2. Select and import your `SheryCart` GitHub repository.
+3. Configure the Project settings:
+   - **Framework Preset**: `Vite`
+   - **Root Directory**: Click **Edit** and select `frontend` *(CRITICAL: must be `frontend`)*
+   - **Build Command**: `npm run build` (auto-detected)
+   - **Output Directory**: `dist` (auto-detected)
+4. Expand **Environment Variables** and add:
+   | Key | Value |
+   | :--- | :--- |
+   | `VITE_API_BASE_URL` | `https://sherycart-backend.onrender.com` *(your Render backend URL from Part 2)* |
+5. Click **Deploy**.
+6. Vercel will install dependencies, build the React bundle, and deploy with the custom `vercel.json` SPA rewrite rules.
+
+---
+
+### Part 4: Connect Backend & Frontend (Final Handshake)
+1. Copy your live Vercel frontend URL (e.g., `https://sherycart.vercel.app`).
+2. Go back to your **Render Dashboard > sherycart-backend > Environment**.
+3. Set/update the `CLIENT_URL` environment variable:
+   ```
+   CLIENT_URL = https://sherycart.vercel.app
+   ```
+4. Click **Save Changes**. Render will automatically redeploy with the updated CORS origin allowed.
+5. Open your live Vercel app in the browser:
+   - Register a new account (`customer` or `seller`).
+   - Test login and check DevTools Network tab: cookies and JWT tokens flow securely across domains!
+   - Refresh the page on `/main` or `/create-product` to confirm SPA routing works without 404s.
 
 ---
 
