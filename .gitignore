@@ -17,6 +17,9 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Local environment files (use .env.example instead)
+.env
+.env.*
+*.env
 *.env.local
 *.env.*.local
 
